@@ -22,10 +22,10 @@
 
 
 
-        <!--        Console SQL statements and queries-->
-        <!--        <property name="show_sql">true</property>-->
-        <!--        <property name="format_sql">true</property>-->
-        <!-- <property name="hibernate.use_sql_comments">true</property> -->
+<!--                Console SQL statements and queries-->
+<!--                <property name="show_sql">true</property>-->
+<!--                <property name="format_sql">true</property>-->
+<!--         <property name="hibernate.use_sql_comments">true</property>-->
 
 
         <property name="hbm2ddl.auto">create-drop</property>

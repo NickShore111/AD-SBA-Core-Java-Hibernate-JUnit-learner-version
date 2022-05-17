@@ -2,8 +2,7 @@ package sba.sms.services;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import sba.sms.models.Student;
 import sba.sms.utils.CommandLine;
 
@@ -13,6 +12,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 class StudentServiceTest {
 
@@ -25,6 +25,7 @@ class StudentServiceTest {
     }
 
     @Test
+    @Order(1)
     void getAllStudents() {
 
         List<Student> expected = new ArrayList<>(Arrays.asList(
@@ -37,5 +38,36 @@ class StudentServiceTest {
 
         assertThat(studentService.getAllStudents()).hasSameElementsAs(expected);
 
+    }
+
+    @Test
+    @Order(2)
+    void createStudent() {
+        int countBeforeNewStudent = studentService.getAllStudents().size();
+        Student newTestStudent = new Student("test@gmail.com", "test student", "testPassword");
+        studentService.createStudent(newTestStudent);
+        assertThat(studentService.getAllStudents()).contains(newTestStudent);
+
+    }
+
+    @Test
+    @Order(3)
+    void getStudentByEmail() {
+        Student expected = new Student("reema@gmail.com", "reema brown", "password");
+        Student actual = studentService.getStudentByEmail("reema@gmail.com");
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void validateStudent() {
+
+    }
+
+    @Test
+    void registerStudentToCourse() {
+    }
+
+    @Test
+    void getStudentCourses() {
     }
 }
