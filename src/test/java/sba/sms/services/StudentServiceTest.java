@@ -3,6 +3,8 @@ package sba.sms.services;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import sba.sms.models.Student;
 import sba.sms.utils.CommandLine;
 
@@ -40,6 +42,14 @@ class StudentServiceTest {
 
     }
 
+    @Order(4)
+    @ParameterizedTest
+    @ValueSource(strings = {"reema@gmail.com", "annette@gmail.com", "anthony@gmail.com", "ariadna@gmail.com", "bolaji@gmail.com"})
+    void validateStudent(String emails) {
+        String PASSWORD = "password";
+        assertThat(studentService.validateStudent(emails, PASSWORD)).isTrue();
+    }
+
     @Test
     @Order(2)
     void createStudent() {
@@ -47,7 +57,6 @@ class StudentServiceTest {
         Student newTestStudent = new Student("test@gmail.com", "test student", "testPassword");
         studentService.createStudent(newTestStudent);
         assertThat(studentService.getAllStudents()).contains(newTestStudent);
-
     }
 
     @Test
@@ -59,15 +68,18 @@ class StudentServiceTest {
     }
 
     @Test
-    void validateStudent() {
-
-    }
-
-    @Test
+    @Order(5)
     void registerStudentToCourse() {
+
+//        Assertions.assertDoesNotThrow(studentService.registerStudentToCourse("reema@gmail.com", 1));
+        studentService.registerStudentToCourse("reema@gmail.com", 2);
+        studentService.registerStudentToCourse("reema@gmail.com", 3);
+
     }
 
     @Test
+    @Order(6)
     void getStudentCourses() {
+
     }
 }

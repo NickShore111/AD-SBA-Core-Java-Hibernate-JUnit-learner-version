@@ -25,63 +25,56 @@ public class StudentService implements StudentI {
 
     @Override
     public List<Student> getAllStudents() {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        List<Student> students = s.createQuery("From Student", Student.class).getResultList();
-        s.close();
+        List<Student> students = new ArrayList<>();
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            students = s.createQuery("From Student", Student.class).getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return students;
     }
 
     @Override
     public void createStudent(Student student) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        try {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
             tx = s.beginTransaction();
             s.persist(student);
             tx.commit();
         } catch (HibernateException exception) {
             if (tx!=null) tx.rollback();
             exception.printStackTrace();
-        } finally {
-            s.close();
         }
     }
 
     @Override
     public Student getStudentByEmail(String email) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        try {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
             Student student = s.get(Student.class, email);
             if(student == null)
                 throw new HibernateException("Could not find student");
             else return student;
         } catch (HibernateException e) {
             e.printStackTrace();
-        } finally {
-            s.close();
         }
         return new Student();
     }
 
     @Override
     public boolean validateStudent(String email, String password) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        try {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
             Student student = s.get(Student.class, email);
             return student.getPassword().equals(password);
         } catch (HibernateException exception) {
             exception.printStackTrace();
-        } finally {
-            s.close();
         }
         return false;
     }
 
     @Override
     public void registerStudentToCourse(String email, int courseId) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        try {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
             tx = s.beginTransaction();
             Student student = s.get(Student.class, email);
             Course course = s.get(Course.class, courseId);
@@ -90,23 +83,19 @@ public class StudentService implements StudentI {
             tx.commit();
         } catch (HibernateException exception) {
             exception.printStackTrace();
-        } finally {
-            s.close();
         }
     }
 
     @Override
     public List<Course> getStudentCourses(String email) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
+
         List<Course> coursesList = null;
-        try {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
             NativeQuery q = s.createNativeQuery("SELECT c.id, c.name, c.instructor FROM Course as c JOIN student_courses as sc ON sc.course_id = c.id JOIN Student as s ON s.email = sc.student_email WHERE s.email = :email",Course.class);
             q.setParameter("email",email);
             coursesList = q.getResultList();
         } catch (HibernateException exception) {
             exception.printStackTrace();
-        } finally {
-            s.close();
         }
         return coursesList;
     }
