@@ -60,9 +60,10 @@ public class App {
                         System.out.printf("select course #: ");
                         int courseId = input.nextInt();
                         if (courseId > 0 && courseId <= courseList.size()) {
-                            studentService.registerStudentToCourse(email, (courseId));
-                            System.out.printf("successfully register %s to %s%n", studentService.getStudentByEmail(email).getName(), courseService.getCourseById(courseId).getName());
-                            printStudentCourses(email);
+                            if(studentService.registerStudentToCourse(email, (courseId))) {
+                                System.out.printf("successfully register %s to %s%n", studentService.getStudentByEmail(email).getName(), courseService.getCourseById(courseId).getName());
+                                printStudentCourses(email);
+                            }
                         } else {
                             System.out.printf("course id not found!%n");
                         }

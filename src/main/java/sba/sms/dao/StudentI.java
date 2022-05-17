@@ -13,7 +13,7 @@ public interface StudentI {
 
     boolean validateStudent(String email, String password);
 
-    void registerStudentToCourse(String email, int courseId);
+    boolean registerStudentToCourse(String email, int courseId);
 
     List<Course> getStudentCourses(String email);
 }

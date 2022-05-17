@@ -72,18 +72,23 @@ public class StudentService implements StudentI {
     }
 
     @Override
-    public void registerStudentToCourse(String email, int courseId) {
+    public boolean registerStudentToCourse(String email, int courseId) {
         Transaction tx = null;
         try (Session s = HibernateUtil.getSessionFactory().openSession()){
             tx = s.beginTransaction();
             Student student = s.get(Student.class, email);
             Course course = s.get(Course.class, courseId);
+            if(student.getCourses().contains(course)) {
+                System.out.printf("%s already registered with %s%n", student.getName(), course.getName());
+                return false;
+            }
             student.addCourse(course);
             s.merge(student);
             tx.commit();
         } catch (HibernateException exception) {
             exception.printStackTrace();
         }
+        return true;
     }
 
     @Override

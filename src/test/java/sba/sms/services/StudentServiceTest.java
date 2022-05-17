@@ -56,7 +56,9 @@ class StudentServiceTest {
         int countBeforeNewStudent = studentService.getAllStudents().size();
         Student newTestStudent = new Student("test@gmail.com", "test student", "testPassword");
         studentService.createStudent(newTestStudent);
+        int countAfterNewStudent = studentService.getAllStudents().size();
         assertThat(studentService.getAllStudents()).contains(newTestStudent);
+        assertThat(countBeforeNewStudent).isLessThan(countAfterNewStudent);
     }
 
     @Test
@@ -70,10 +72,6 @@ class StudentServiceTest {
     @Test
     @Order(5)
     void registerStudentToCourse() {
-
-//        Assertions.assertDoesNotThrow(studentService.registerStudentToCourse("reema@gmail.com", 1));
-        studentService.registerStudentToCourse("reema@gmail.com", 2);
-        studentService.registerStudentToCourse("reema@gmail.com", 3);
 
     }
 
