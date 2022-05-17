@@ -18,6 +18,7 @@ import sba.sms.utils.HibernateUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Log
@@ -35,22 +36,33 @@ public class StudentService implements StudentI {
     }
 
     @Override
-    public void createStudent(Student student) {
+    public boolean createStudent(Student student) {
         Transaction tx = null;
+        String[] splitName = student.getName().split(" ");
+        String titleFirstName =  splitName[0].substring(0,1).toUpperCase().concat(splitName[0].substring(1).toLowerCase());
+        String titleLastName =  splitName[1].substring(0,1).toUpperCase().concat(splitName[1].substring(1).toLowerCase());
+        student.setName(titleFirstName+" "+titleLastName);
+        student.setPassword(student.getPassword().toLowerCase(Locale.ROOT));
         try (Session s = HibernateUtil.getSessionFactory().openSession()){
+            List<Student> allStudents = getAllStudents();
             tx = s.beginTransaction();
-            s.persist(student);
-            tx.commit();
+            if (!allStudents.contains(student)) {
+                s.persist(student);
+                tx.commit();
+                return true;
+            }
+            return false;
         } catch (HibernateException exception) {
             if (tx!=null) tx.rollback();
             exception.printStackTrace();
         }
+        return false;
     }
 
     @Override
     public Student getStudentByEmail(String email) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()){
-            Student student = s.get(Student.class, email);
+            Student student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
             if(student == null)
                 throw new HibernateException("Could not find student");
             else return student;
@@ -63,7 +75,7 @@ public class StudentService implements StudentI {
     @Override
     public boolean validateStudent(String email, String password) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()){
-            Student student = s.get(Student.class, email);
+            Student student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
             return student.getPassword().equals(password);
         } catch (HibernateException exception) {
             exception.printStackTrace();
@@ -76,7 +88,7 @@ public class StudentService implements StudentI {
         Transaction tx = null;
         try (Session s = HibernateUtil.getSessionFactory().openSession()){
             tx = s.beginTransaction();
-            Student student = s.get(Student.class, email);
+            Student student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
             Course course = s.get(Course.class, courseId);
             if(student.getCourses().contains(course)) {
                 System.out.printf("%s already registered with %s%n", student.getName(), course.getName());

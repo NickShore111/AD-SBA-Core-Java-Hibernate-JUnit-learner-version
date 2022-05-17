@@ -37,12 +37,13 @@ public class Student {
         courses.add(course);
         course.getStudents().add(this);
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Student student = (Student) o;
-        return email.equals(student.email) && name.equals(student.name);
+        return email.equalsIgnoreCase(student.email) && name.equals(student.name);
     }
 
     @Override
