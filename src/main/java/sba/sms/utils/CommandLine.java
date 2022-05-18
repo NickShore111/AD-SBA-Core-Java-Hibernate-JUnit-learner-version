@@ -27,5 +27,9 @@ public class CommandLine {
         courseService.createCourse(new Course("Spring Framework", instructorPhillip));
         courseService.createCourse(new Course("SQL", instructorPhillip));
 
+        studentService.registerStudentToCourse("reema@gmail.com", 1);
+        studentService.registerStudentToCourse("reema@gmail.com", 2);
+        studentService.getStudentCourses("reema@gmail.com");
+
     }
 }

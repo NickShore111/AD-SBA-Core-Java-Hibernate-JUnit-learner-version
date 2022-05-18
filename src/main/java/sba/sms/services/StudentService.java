@@ -1,10 +1,15 @@
 package sba.sms.services;
 
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
 import lombok.extern.java.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 import sba.sms.dao.StudentI;
 import sba.sms.models.Course;
 import sba.sms.models.Student;
@@ -88,7 +93,7 @@ public class StudentService implements StudentI {
             Student student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
             Course course = s.get(Course.class, courseId);
             if (student.getCourses().contains(course)) {
-                System.out.printf("%s already registered with %s%n", student.getName(),course.getName());
+                System.out.printf("%s already registered for %s%n", student.getName(),course.getName());
                 return;
             }
             student.addCourse(course);
@@ -100,62 +105,63 @@ public class StudentService implements StudentI {
         }
     }
 
-    @Override
-    public List<Course> getStudentCourses(String email) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        List<Course> coursesList = null;
-        try {
-            NativeQuery q = s.createNativeQuery("SELECT c.id, c.name, c.instructor FROM Course as c JOIN student_courses as sc ON sc.course_id = c.id JOIN Student as s ON s.email = sc.student_email WHERE s.email = :email",Course.class);
-            q.setParameter("email",email);
-            coursesList = q.getResultList();
-        } catch (HibernateException exception) {
-            exception.printStackTrace();
-        } finally {
-            s.close();
-        }
-        return coursesList;
-    }
-
 //    @Override
 //    public List<Course> getStudentCourses(String email) {
-//        // Session s = HibernateUtil.getSessionFactory().openSession();
-//        List<Course> coursesList = new ArrayList<>();
-//        Transaction tx = null;
-//        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
-//            tx = s.beginTransaction();
-//            CriteriaBuilder builder = s.getCriteriaBuilder();
-//
-//            CriteriaQuery<Object[]> criteriaQuery = builder.createQuery(Object[].class);
-//            Root<Course> courseRoot = criteriaQuery.from(Course.class);
-//            Root<Student> studentRoot = criteriaQuery.from(Student.class);
-//
-//            criteriaQuery.multiselect(courseRoot, studentRoot);
-//            criteriaQuery.where(builder.equal(studentRoot.get("courses"), courseRoot.get("id")));
-//
-//            Query<Object[]> query = s.createQuery(criteriaQuery);
-//            List<Object[]> list = query.getResultList();
-//            if (!list.isEmpty()) {
-//                for (Object[] objects : list) {
-//                    Course course = (Course) objects[0];
-//                    Student student = (Student) objects[1];
-//                    log.info("Course: " + course.getName() + " Student: " + student.getName());
-//                }
-//                tx.commit();
-//            }
-//
-//            //            Query q = s.createQuery("SELECT c.id, c.name, c.instructor from Course as c LEFT JOIN FETCH Student as s WHERE s.email= :email");
-////            q.setParameter("email", email);
-////            List<Object[]> courses = q.getResultList();
-////            coursesList = courses.stream().map(objects -> new Course((Integer)objects[0], (String)objects[1], (String)objects[2])).collect(Collectors.toList());
-//
-////        } catch (HibernateException exception) {
-////            exception.printStackTrace();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            if (tx!=null) {
-//                tx.rollback();
-//            }
+//        List<Course> coursesList = null;
+//        try (Session s = HibernateUtil.getSessionFactory().openSession()){
+//            NativeQuery q = s.createNativeQuery("SELECT c.id, c.name, c.instructor FROM Course as c JOIN student_courses as sc ON sc.course_id = c.id JOIN Student as s ON s.email = sc.student_email WHERE s.email = :email",Course.class);
+//            q.setParameter("email",email);
+//            coursesList = q.getResultList();
+//        } catch (HibernateException exception) {
+//            exception.printStackTrace();
 //        }
 //        return coursesList;
 //    }
+
+//    @Override
+
+    public List<Course> getStudentCourses(String student_email) {
+        // Session s = HibernateUtil.getSessionFactory().openSession();
+        List<Course> coursesList = new ArrayList<>();
+        Transaction tx = null;
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            tx = s.beginTransaction();
+            CriteriaBuilder cb = s.getCriteriaBuilder();
+            CriteriaQuery<Student> sq = cb.createQuery(Student.class);
+            CriteriaQuery<Course> cq = cb.createQuery(Course.class);
+
+//            Root<Student> student = sq.from(Student.class);
+//            Metamodel sm = s.getMetamodel();
+            // Creating metaModel of class entity
+            Metamodel m = s.getMetamodel();
+            EntityType<Student> Student_ = m.entity(Student.class);
+//            EntityType<Course> Course_ = m.entity(Course.class);
+//            Root<Student> student = sq.from(Student_);
+//            Root<Course> course = cq.from(Course_);
+
+            // A valid alternative to create Root<Course> using Class entity instead of metaModel
+            Root<Course> courseRoot = cq.from(Course.class);
+            Root<Student> studentRoot = sq.from(Student.class);
+            // Student query build and results
+//            cr.select(root).where(cb.like(root.get("itemName"), "%chair%"));
+            sq.select(studentRoot).where(cb.like(studentRoot.get("email"), student_email));
+            TypedQuery<Student> ss = s.createQuery(sq);
+            Student student = ss.getSingleResult();
+            System.out.println(student);
+//            List<Student> allStudents = ss.getResultList();
+//            System.out.println(allStudents.toString());
+            // Course query build and results
+//            cq.select(courseRoot);
+            TypedQuery<Course> q = s.createQuery(cq);
+            List<Course> allCourses = q.getResultList();
+            System.out.println(allCourses.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (tx!=null) {
+                tx.rollback();
+            }
+        }
+        return coursesList;
+    }
 }
