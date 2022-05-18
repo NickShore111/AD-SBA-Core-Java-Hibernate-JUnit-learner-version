@@ -1,97 +1,102 @@
 package sba.sms.services;
 
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
 import lombok.extern.java.Log;
-import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
-import org.hibernate.query.Query;
 import sba.sms.dao.StudentI;
 import sba.sms.models.Course;
 import sba.sms.models.Student;
 import sba.sms.utils.HibernateUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
+
 
 @Log
 public class StudentService implements StudentI {
 
     @Override
     public List<Student> getAllStudents() {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        List<Student> students = s.createQuery("From Student", Student.class).getResultList();
-        s.close();
+        List<Student> students = new ArrayList<>();
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            students = s.createQuery("From Student", Student.class).getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return students;
     }
 
     @Override
     public void createStudent(Student student) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        try {
+        String[] splitName = student.getName().trim().split(" ");
+        String titleFirstName =  splitName[0].substring(0,1).toUpperCase().concat(splitName[0].substring(1).toLowerCase());
+        String titleLastName =  splitName[1].substring(0,1).toUpperCase().concat(splitName[1].substring(1).toLowerCase());
+        student.setName(titleFirstName+" "+titleLastName);
+        student.setPassword(student.getPassword().toLowerCase(Locale.ROOT));
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
+            List<Student> allStudents = getAllStudents();
             tx = s.beginTransaction();
-            s.persist(student);
-            tx.commit();
+            if (!allStudents.contains(student)) {
+                s.persist(student);
+                tx.commit();
+            }
         } catch (HibernateException exception) {
             if (tx!=null) tx.rollback();
             exception.printStackTrace();
-        } finally {
-            s.close();
         }
     }
 
     @Override
     public Student getStudentByEmail(String email) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        try {
-            Student student = s.get(Student.class, email);
-            if(student == null)
-                throw new HibernateException("Could not find student");
-            else return student;
+        Student student = null;
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
+            student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
+            if (student == null) {
+                System.out.println("Unable to locate student!");
+            }
         } catch (HibernateException e) {
             e.printStackTrace();
-        } finally {
-            s.close();
         }
-        return new Student();
+        return student;
     }
 
     @Override
     public boolean validateStudent(String email, String password) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        try {
-            Student student = s.get(Student.class, email);
+        Student student = null;
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
+            student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
+            if (student == null) {
+                System.out.println("Unable to locate student!");
+                return false;
+            }
             return student.getPassword().equals(password);
         } catch (HibernateException exception) {
             exception.printStackTrace();
-        } finally {
-            s.close();
         }
         return false;
     }
 
     @Override
     public void registerStudentToCourse(String email, int courseId) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        try {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
             tx = s.beginTransaction();
-            Student student = s.get(Student.class, email);
+            Student student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
             Course course = s.get(Course.class, courseId);
+            if (student.getCourses().contains(course)) {
+                System.out.printf("%s already registered with %s%n", student.getName(),course.getName());
+                return;
+            }
             student.addCourse(course);
+            System.out.printf("Successfully registered %s for %s%n", student.getName(), course.getName());
             s.merge(student);
             tx.commit();
         } catch (HibernateException exception) {
             exception.printStackTrace();
-        } finally {
-            s.close();
         }
     }
 
