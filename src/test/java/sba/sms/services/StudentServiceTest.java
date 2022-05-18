@@ -29,15 +29,14 @@ class StudentServiceTest {
     void getAllStudents() {
 
         List<Student> expected = new ArrayList<>(Arrays.asList(
+
                 new Student("reema@gmail.com", "reema brown", "password"),
                 new Student("annette@gmail.com", "annette allen", "password"),
                 new Student("anthony@gmail.com", "anthony gallegos", "password"),
                 new Student("ariadna@gmail.com", "ariadna ramirez", "password"),
                 new Student("bolaji@gmail.com", "bolaji saibu", "password")
         ));
-
         assertThat(studentService.getAllStudents()).hasSameElementsAs(expected);
-
     }
 
     @Test
@@ -47,7 +46,6 @@ class StudentServiceTest {
         Student newTestStudent = new Student("test@gmail.com", "test student", "testPassword");
         studentService.createStudent(newTestStudent);
         assertThat(studentService.getAllStudents()).contains(newTestStudent);
-
     }
 
     @Test
