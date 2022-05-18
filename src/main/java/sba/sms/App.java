@@ -39,6 +39,7 @@ public class App {
             System.out.printf("Select # from menu:%n1.Add Student%n2.Login Student%n3.Quit%n");
             userInput = input.nextInt();
             switch (userInput) {
+                // Manually create and add new student to system
                 case 1:
                     Student newStudent = new Student();
                     System.out.println("Student first name:");
@@ -56,6 +57,7 @@ public class App {
                         System.out.printf("Student %s with email %s already in system!%n", newStudent.getName(), newStudent.getEmail());
                     }
                     break;
+                    // Login existing student
                 case 2:
                     System.out.print("Enter student email: ");
                     String email = input.next();
@@ -65,127 +67,58 @@ public class App {
                         String password = input.next();
                         if (studentService.validateStudent(email, password)) {
                             printStudentCourses(email);
-                            System.out.printf("select # from menu: %n1.Register %s to class: %n2.Logout%n", studentService.getStudentByEmail(email).getName());
-                            userInput = input.nextInt();
-                            if (userInput == 2) {
-                                System.exit(0);
-                            } else {
-                                List<Course> courseList = courseService.getAllCourses();
-                                System.out.printf("All courses:%n-----------------------------%n");
-                                System.out.printf("%-2s | %-20s | %s%n", "ID", "Course", "Instructor");
-                                if (courseList.isEmpty()) System.out.printf("No courses to view%n");
-                                for (Course course : courseList) {
-                                    System.out.printf("%-2d | %-20s | %s%n", course.getId(), course.getName(), course.getInstructor());
-                                }
-                                System.out.print("select course #: ");
-                                int courseId = input.nextInt();
-                                if (courseId > 0 && courseId <= courseList.size()) {
-                                    if (studentService.registerStudentToCourse(email, (courseId))) {
-                                        System.out.printf("Successfully registered %s to %s%n", studentService.getStudentByEmail(email).getName(), courseService.getCourseById(courseId).getName());
-                                        printStudentCourses(email);
+                            while (userInput != 3) {
+                                System.out.printf("select # from menu: %n1.Register classes for %s%n2.Unregister for classes%n3.Logout%n", studentService.getStudentByEmail(email).getName());
+                                userInput = input.nextInt();
+                                if (userInput == 3) {
+                                    break;
+                                } else if (userInput == 2) {
+                                    // Unregister for a class
+                                    System.out.println("Unregister for course #: ");
+                                    int unregisterCourseId = input.nextInt();
+                                    if (studentService.unregisterStudentToCourse(student.getEmail(), unregisterCourseId)) {
+                                        System.out.printf("Successfully unregistered %s from %s%n", student.getName(), courseService.getCourseById(unregisterCourseId).getName());
+                                    }
+                                } else if (userInput == 1){
+                                    // Register for a class
+                                    List<Course> courseList = courseService.getAllCourses();
+                                    System.out.printf("All courses:%n-----------------------------%n");
+                                    System.out.printf("%-2s | %-20s | %s%n", "ID", "Course", "Instructor");
+                                    if (courseList.isEmpty()) System.out.printf("No courses to view%n");
+                                    for (Course course : courseList) {
+                                        System.out.printf("%-2d | %-20s | %s%n", course.getId(), course.getName(), course.getInstructor());
+                                    }
+                                    System.out.print("select course #: ");
+                                    int courseId = input.nextInt();
+                                    if (courseId > 0 && courseId <= courseList.size()) {
+                                        if (studentService.registerStudentToCourse(email, (courseId))) {
+                                            System.out.printf("Successfully registered %s to %s%n", studentService.getStudentByEmail(email).getName(), courseService.getCourseById(courseId).getName());
+                                            printStudentCourses(email);
+                                        }
+                                    } else {
+                                        System.out.printf("course id not found!%n");
                                     }
                                 } else {
-                                    System.out.printf("course id not found!%n");
+                                    System.out.println("Try again!%n");
                                 }
-                                System.out.printf("session ended!%n");
-                            }
+                            }// Registration while loop ends
+                            System.out.printf("session ended!%n");
                         } else {
                             System.out.printf("Incorrect username or password%n");
                         }
                     } else {
-                        System.out.printf("Student with email %s does not exist!", email);
+                        System.out.printf("Student with email %s not found!%n", email);
                     }
                     break;
                 case 3:
                     System.exit(0);
                     break;
+                default:
+                    System.out.println("Try again!%n");
             }
         }
         input.close();
-//        do {
-//            if (userInput == 1) {
-//                System.out.printf("Enter student email: ");
-//                String email = input.next();
-//                System.out.printf("Enter %s's password: ", email.substring(0, email.indexOf("@")));
-//                String password = input.next();
-//                if (studentService.validateStudent(email, password)) {
-//                    printStudentCourses(email);
-//                    System.out.printf("select # from menu: %n1.Register %s to class: %n2.Logout%n", studentService.getStudentByEmail(email).getName());
-//                    userInput = input.nextInt();
-//                    if (userInput == 2) {
-//                        System.exit(0);
-//                    } else {
-//                        List<Course> courseList = courseService.getAllCourses();
-//                        System.out.printf("All courses:%n-----------------------------%n");
-//                        System.out.printf("%-2s | %-20s | %s%n", "ID", "Course", "Instructor");
-//                        if (courseList.isEmpty()) System.out.printf("No courses to view%n");
-//                        for (Course course : courseList) {
-//                            System.out.printf("%-2d | %-20s | %s%n", course.getId(), course.getName(), course.getInstructor());
-//                        }
-//                        System.out.printf("select course #: ");
-//                        int courseId = input.nextInt();
-//                        if (courseId > 0 && courseId <= courseList.size()) {
-//                            if(studentService.registerStudentToCourse(email, (courseId))) {
-//                                System.out.printf("successfully register %s to %s%n", studentService.getStudentByEmail(email).getName(), courseService.getCourseById(courseId).getName());
-//                                printStudentCourses(email);
-//                            }
-//                        } else {
-//                            System.out.printf("course id not found!%n");
-//                        }
-//                        System.out.printf("session ended!%n");
-//                    }
-//                } else {
-//                    System.out.printf("Incorrect username or password%n");
-//                }
-//            }
-//        } while (userInput != 2);
-//        input.close();
     }
-//        CommandLine.addData();
-//
-//        Scanner input = new Scanner(System.in);
-//        int userInput;
-//        do {
-//            System.out.printf("Select # from menu:%n1.Student%n2.Quit%n");
-//            userInput = input.nextInt();
-//            if (userInput == 1) {
-//                System.out.printf("Enter student email: ");
-//                String email = input.next();
-//                System.out.printf("Enter %s's password: ", email.substring(0, email.indexOf("@")));
-//                String password = input.next();
-//                if (studentService.validateStudent(email, password)) {
-//                    printStudentCourses(email);
-//                    System.out.printf("select # from menu: %n1.Register %s to class: %n2.Logout%n", studentService.getStudentByEmail(email).getName());
-//                    userInput = input.nextInt();
-//                    if (userInput == 2) {
-//                        System.exit(0);
-//                    } else {
-//                        List<Course> courseList = courseService.getAllCourses();
-//                        System.out.printf("All courses:%n-----------------------------%n");
-//                        System.out.printf("%-2s | %-20s | %s%n", "ID", "Course", "Instructor");
-//                        if (courseList.isEmpty()) System.out.printf("No courses to view%n");
-//                        for (Course course : courseList) {
-//                            System.out.printf("%-2d | %-20s | %s%n", course.getId(), course.getName(), course.getInstructor());
-//                        }
-//                        System.out.printf("select course #: ");
-//                        int courseId = input.nextInt();
-//                        if (courseId > 0 && courseId <= courseList.size()) {
-//                            if(studentService.registerStudentToCourse(email, (courseId))) {
-//                                System.out.printf("successfully register %s to %s%n", studentService.getStudentByEmail(email).getName(), courseService.getCourseById(courseId).getName());
-//                                printStudentCourses(email);
-//                            }
-//                        } else {
-//                            System.out.printf("course id not found!%n");
-//                        }
-//                        System.out.printf("session ended!%n");
-//                    }
-//                } else {
-//                    System.out.printf("Incorrect username or password%n");
-//                }
-//            }
-//        } while (userInput != 2);
-//        input.close();
-//    }
 
     private static void printStudentCourses(String email) {
         System.out.printf("%s courses:%n-----------------------------%n", email);

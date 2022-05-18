@@ -38,7 +38,7 @@ public class StudentService implements StudentI {
     @Override
     public boolean createStudent(Student student) {
         Transaction tx = null;
-        String[] splitName = student.getName().split(" ");
+        String[] splitName = student.getName().trim().split(" ");
         String titleFirstName =  splitName[0].substring(0,1).toUpperCase().concat(splitName[0].substring(1).toLowerCase());
         String titleLastName =  splitName[1].substring(0,1).toUpperCase().concat(splitName[1].substring(1).toLowerCase());
         student.setName(titleFirstName+" "+titleLastName);
@@ -61,15 +61,14 @@ public class StudentService implements StudentI {
 
     @Override
     public Student getStudentByEmail(String email) {
+        Student student = null;
         try (Session s = HibernateUtil.getSessionFactory().openSession()){
-            Student student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
-            if(student == null)
-                throw new HibernateException("Could not find student");
-            else return student;
+            student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
+
         } catch (HibernateException e) {
             e.printStackTrace();
         }
-        return new Student();
+        return student;
     }
 
     @Override
@@ -81,6 +80,28 @@ public class StudentService implements StudentI {
             exception.printStackTrace();
         }
         return false;
+    }
+
+    public boolean unregisterStudentToCourse(String email, int courseId) {
+        Transaction tx = null;
+        try (Session s = HibernateUtil.getSessionFactory().openSession()){
+            tx = s.beginTransaction();
+            Student student = s.get(Student.class, email.toLowerCase(Locale.ROOT));
+            Course course = s.get(Course.class, courseId);
+            if(!student.getCourses().contains(course)) {
+                System.out.printf("%s already not registered with %s%n", student.getName(), course.getName());
+                return false;
+            }
+            student.getCourses().remove(course);
+            s.merge(student);
+            tx.commit();
+        } catch (HibernateException exception) {
+            exception.printStackTrace();
+        } catch (NullPointerException npe) {
+            System.out.printf("Course with id %d not found!%n", courseId);
+            return false;
+        }
+        return true;
     }
 
     @Override
