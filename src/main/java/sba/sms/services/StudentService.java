@@ -117,6 +117,7 @@ public class StudentService implements StudentI {
         return coursesList;
     }
 
+    // Attempt at using CriteriaBuilder for TypeQuery construction
 //    @Override
 //    public List<Course> getStudentCourses(String student_email) {
 //        // Session s = HibernateUtil.getSessionFactory().openSession();
