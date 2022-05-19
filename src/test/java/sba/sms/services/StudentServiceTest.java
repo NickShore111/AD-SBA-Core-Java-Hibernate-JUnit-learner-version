@@ -3,6 +3,7 @@ package sba.sms.services;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.*;
+import sba.sms.models.Course;
 import sba.sms.models.Student;
 import sba.sms.utils.CommandLine;
 
@@ -57,15 +58,40 @@ class StudentServiceTest {
     }
 
     @Test
+    @Order(4)
     void validateStudent() {
+        // Negative test
+        final String wrongEmail = "failedEmail@test.com";
+        final String wrongPassword = "fakePassword";
+        boolean failResult = studentService.validateStudent(wrongEmail,wrongPassword);
+        assertThat(failResult).isFalse();
 
+        // Positive test
+        final String correctEmail = "reema@gmail.com";
+        final String correctPassword = "password";
+        boolean acceptResult = studentService.validateStudent(correctEmail, correctPassword);
+        assertThat(acceptResult).isTrue();
     }
 
     @Test
+    @Order(6)
     void registerStudentToCourse() {
+        String instructorPhillip = "Phillip Witkin";
+        Course course = new Course(1,"Java", instructorPhillip);
+        Student student = studentService.getStudentByEmail("reema@gmail.com");
+        studentService.registerStudentToCourse(student.getEmail(), 1);
+        assertThat(studentService.getStudentCourses(student.getEmail())).contains(course);
     }
 
     @Test
+    @Order(5)
     void getStudentCourses() {
+        Student student = studentService.getStudentByEmail("annette@gmail.com");
+        int[] courseIdList = new int[]{1,2,3,4,5};
+        for (int id : courseIdList) {
+            studentService.registerStudentToCourse(student.getEmail(), id);
+        }
+        assertThat(studentService.getStudentCourses(student.getEmail())).size().isEqualTo(courseIdList.length);
+
     }
 }
