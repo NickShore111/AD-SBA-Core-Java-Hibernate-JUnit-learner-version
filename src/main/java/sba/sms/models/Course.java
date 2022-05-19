@@ -26,7 +26,7 @@ public class Course {
     String instructor;
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    @ManyToMany(mappedBy = "courses")
+    @ManyToMany(mappedBy = "courses", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     List<Student> students = new ArrayList<>();
 
     public Course(Integer id, String name, String instructor) {
