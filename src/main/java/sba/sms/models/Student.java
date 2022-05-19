@@ -21,9 +21,9 @@ public class Student {
     @Id
     @NonNull
     String email;
-    @NonNull
+    @NonNull @Column(length = 50)
     String name;
-    @NonNull
+    @NonNull @Column(length = 50)
     String password;
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
