@@ -5,7 +5,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,8 +38,8 @@ public class Student {
     }
     public String getName() {
         String[] splitName = name.split(" ");
-        String titleFirstName =  splitName[0].substring(0,1).toUpperCase().concat(splitName[0].substring(1).toLowerCase());
-        String titleLastName =  splitName[1].substring(0,1).toUpperCase().concat(splitName[1].substring(1).toLowerCase());
+        String titleFirstName =  splitName[0].substring(0,1).toUpperCase().concat(splitName[0].substring(1));
+        String titleLastName =  splitName[1].substring(0,1).toUpperCase().concat(splitName[1].substring(1));
         return titleFirstName+" "+titleLastName;
     }
     @Override
