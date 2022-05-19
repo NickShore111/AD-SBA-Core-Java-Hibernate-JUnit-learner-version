@@ -31,11 +31,11 @@ class StudentServiceTest {
     void getAllStudents() {
 
         List<Student> expected = new ArrayList<>(Arrays.asList(
-                new Student("reema@gmail.com", "Reema Brown", "password"),
-                new Student("annette@gmail.com", "Annette Allen", "password"),
-                new Student("anthony@gmail.com", "Anthony Gallegos", "password"),
-                new Student("ariadna@gmail.com", "Ariadna Ramirez", "password"),
-                new Student("bolaji@gmail.com", "Bolaji Saibu", "password")
+                new Student("reema@gmail.com", "reema brown", "password"),
+                new Student("annette@gmail.com", "annette allen", "password"),
+                new Student("anthony@gmail.com", "anthony gallegos", "password"),
+                new Student("ariadna@gmail.com", "ariadna ramirez", "password"),
+                new Student("bolaji@gmail.com", "bolaji saibu", "password")
         ));
 
         assertThat(studentService.getAllStudents()).hasSameElementsAs(expected);
@@ -64,22 +64,22 @@ class StudentServiceTest {
     @Test
     @Order(3)
     void getStudentByEmail() {
-        Student expected = new Student("reema@gmail.com", "Reema Brown", "password");
+        Student expected = new Student("reema@gmail.com", "reema brown", "password");
         Student actual = studentService.getStudentByEmail("reema@gmail.com");
         assertThat(actual).isEqualTo(expected);
-        Student capitolActual = studentService.getStudentByEmail("REEMA@gmail.com");
-        assertThat(capitolActual).isEqualTo(expected);
+        Student upperCaseActual = studentService.getStudentByEmail("REEMA@gmail.com");
+        assertThat(upperCaseActual).isEqualTo(expected);
     }
 
-    @Test
-    @Order(5)
-    void registerStudentToCourse() {
-
-    }
-
-    @Test
-    @Order(6)
-    void getStudentCourses() {
-
-    }
+//    @Test
+//    @Order(5)
+//    void registerStudentToCourse() {
+//
+//    }
+//
+//    @Test
+//    @Order(6)
+//    void getStudentCourses() {
+//
+//    }
 }

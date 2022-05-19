@@ -38,11 +38,8 @@ public class StudentService implements StudentI {
     @Override
     public boolean createStudent(Student student) {
         Transaction tx = null;
-        String[] splitName = student.getName().trim().split(" ");
-        String titleFirstName =  splitName[0].substring(0,1).toUpperCase().concat(splitName[0].substring(1).toLowerCase());
-        String titleLastName =  splitName[1].substring(0,1).toUpperCase().concat(splitName[1].substring(1).toLowerCase());
-        student.setName(titleFirstName+" "+titleLastName);
-        student.setPassword(student.getPassword().toLowerCase(Locale.ROOT));
+        student.setEmail(student.getEmail().toLowerCase(Locale.ROOT));
+        student.setName(student.getName().toLowerCase(Locale.ROOT));
         try (Session s = HibernateUtil.getSessionFactory().openSession()){
             List<Student> allStudents = getAllStudents();
             tx = s.beginTransaction();

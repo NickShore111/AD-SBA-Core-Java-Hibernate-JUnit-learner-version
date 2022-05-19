@@ -60,8 +60,8 @@ public class App {
                     // Login existing student
                 case 2:
                     System.out.print("Enter student email: ");
-                    String email = input.next();
-                    Student student = studentService.getStudentByEmail(email.toLowerCase(Locale.ROOT));
+                    String email = input.next().toLowerCase(Locale.ROOT);
+                    Student student = studentService.getStudentByEmail(email);
                     if (student != null) {
                         System.out.printf("Enter %s's password: ", student.getName());
                         String password = input.next();
