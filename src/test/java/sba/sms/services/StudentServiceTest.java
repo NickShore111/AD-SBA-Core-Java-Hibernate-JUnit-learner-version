@@ -43,25 +43,35 @@ class StudentServiceTest {
     @Test
     @Order(2)
     void createStudent() {
-        int countBeforeNewStudent = studentService.getAllStudents().size();
-        Student newTestStudent = new Student("test@gmail.com", "test student", "testPassword");
-        studentService.createStudent(newTestStudent);
-        assertThat(studentService.getAllStudents()).contains(newTestStudent);
+        final int sizeOfAllStudentsBeforeCreate = studentService.getAllStudents().size();
+        Student newStudent = new Student("test@gmail.com", "test student", "testPassword");
+        studentService.createStudent(newStudent);
+        assertThat(studentService.getAllStudents()).contains(newStudent);
+        // Student body size should be 1 more than student body size before create
+        final int sizeOfAllStudentsAfterCreate = sizeOfAllStudentsBeforeCreate + 1;
+        assertThat(studentService.getAllStudents().size()).isEqualTo(sizeOfAllStudentsAfterCreate);
     }
 
     @Test
     @Order(3)
     void getStudentByEmail() {
-        Student expected = new Student("reema@gmail.com", "reema brown", "password");
-        Student actual = studentService.getStudentByEmail("reema@gmail.com");
-        assertThat(actual).isEqualTo(expected);
+        // Positive test
+        Student expectedPositive = new Student("reema@gmail.com", "reema brown", "password");
+        Student actualPositive1 = studentService.getStudentByEmail("reema@gmail.com");
+        assertThat(actualPositive1).isEqualTo(expectedPositive);
+        Student actualPositive2 = studentService.getStudentByEmail("REEMA@GMAIL.com");
+        assertThat(actualPositive2).isEqualTo(expectedPositive);
+
+        //Negative test
+        String fakeEmail = "FakeEmail@NotReal.com";
+        assertThat(studentService.getStudentByEmail(fakeEmail)).isNull();
     }
 
     @Test
     @Order(4)
     void validateStudent() {
         // Negative test
-        final String wrongEmail = "failedEmail@test.com";
+        final String wrongEmail = "fakeEmail@test.com";
         final String wrongPassword = "fakePassword";
         boolean failResult = studentService.validateStudent(wrongEmail,wrongPassword);
         assertThat(failResult).isFalse();

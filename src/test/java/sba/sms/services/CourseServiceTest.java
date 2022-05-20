@@ -40,10 +40,23 @@ class CourseServiceTest {
     @Test
     @Order(2)
     void getCourseById() {
+        // Positive test
         String instructorPhillip = "Phillip Witkin";
         Course expected = new Course(1,"Java", instructorPhillip);
         Course actual = courseService.getCourseById(1);
         assertThat(actual).isEqualTo(expected);
+
+    }
+
+    @Test
+    @Order(4)
+    void getCourseByWrongId() {
+        // Negative test
+        Course actual = courseService.getCourseById(999);
+        assertThat(actual).isInstanceOf(Course.class);
+        assertThat(actual.getName()).isNull();
+        assertThat(actual.getInstructor()).isNull();
+        assertThat(actual.getId()).isZero();
     }
 
     @Test
